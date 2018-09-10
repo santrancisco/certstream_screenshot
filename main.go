@@ -8,7 +8,7 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/CaliDog/certstream-go"
+	"github.com/santrancisco/certstream_screenshot/certstream-go"
 	"github.com/santrancisco/certstream_screenshot/screenshotworker"
 	"github.com/santrancisco/logutils"
 )
