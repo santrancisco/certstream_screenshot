@@ -1,5 +1,3 @@
-// Command screenshot is a chromedp example demonstrating how to take a
-// screenshot of a specific element.
 package main
 
 import (

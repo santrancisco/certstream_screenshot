@@ -71,22 +71,6 @@ func (w *Worker) Run() {
 	defer w.wp.Wg.Done()
 	log.Printf("[DEBUG] Starting worker node %d", w.id)
 
-	// var err error
-	// // create chrome instance
-	// w.c, err = chromedp.New(w.ctx) // chromedp.WithLog(log.Printf),
-	// // chromedp.WithRunnerOptions(runner.Flag("headless", true)),
-
-	// // w.c, err = chromedp.New(w.ctx)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// defer func() {
-	// 	log.Printf("[DEBUG] Shutting down our worker %d\n", w.id)
-	// 	_ = w.c.Shutdown(w.ctx)
-	// 	// wait for chrome to finish
-	// 	_ = w.c.Wait()
-	// }()
-
 	for {
 		// Using select for non-blocking reading from channels.
 		select {
