@@ -52,6 +52,10 @@ MAINLOOP:
 				break
 			}
 			all_domains_array, err := jq.Array("data", "leaf_cert", "all_domains")
+			if err != nil {
+				log.Print("Error decoding jq string")
+				break
+			}
 			for _, element := range all_domains_array {
 				if element == nil {
 					continue
