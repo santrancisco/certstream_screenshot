@@ -46,13 +46,16 @@ MAINLOOP:
 			messageType, err := jq.String("message_type")
 			if err != nil {
 				log.Print("Error decoding jq string")
-				continue
+				break
 			}
 			if messageType != "certificate_update" {
-				continue
+				break
 			}
 			all_domains_array, err := jq.Array("data", "leaf_cert", "all_domains")
 			for _, element := range all_domains_array {
+				if element == nil {
+					continue
+				}
 				domain := element.(string)
 				// log.Printf("[DEBUG] Checking %s ", domain)
 				for _, needle := range NEEDLES {
