@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/santrancisco/chromedp"
+	"github.com/santrancisco/chromedp/runner"
 )
 
 type Worker struct {
@@ -55,6 +56,7 @@ func NewWorkerPool(ctx context.Context, count int) *WorkerPool {
 
 // Start starts all of the Workers in the WorkerPool.
 func (wp *WorkerPool) Start() {
+	log.Print("[DEBUG] Starting worker nodes")
 	wp.mu.Lock()
 	defer wp.mu.Unlock()
 	for i, _ := range wp.workers {
@@ -67,6 +69,7 @@ func (wp *WorkerPool) Start() {
 // Start starts all of the Workers in the WorkerPool.
 func (w *Worker) Run() {
 	defer w.wp.Wg.Done()
+	log.Printf("[DEBUG] Starting worker node %d", w.id)
 
 	// var err error
 	// // create chrome instance
@@ -99,7 +102,12 @@ func (w *Worker) Run() {
 func (w Worker) Takescreenshot(url string) {
 	// run task list
 	var buf []byte
-	c, err := w.wp.Chromepool.Allocate(w.ctx)
+	c, err := w.wp.Chromepool.Allocate(w.ctx,
+		runner.Flag("headless", true),
+		runner.Flag("ignore-certificate-errors", true),
+		runner.Flag("disable-gpu", true),
+		runner.WindowSize(1280, 800),
+	)
 	if err != nil {
 		log.Printf("[DEBUG] Error: %v", err)
 		return
@@ -109,6 +117,10 @@ func (w Worker) Takescreenshot(url string) {
 	err = c.Run(w.ctx, screenshot(url, &buf))
 	if err != nil {
 		log.Fatal(err)
+	}
+	if len(buf) == 19809 {
+		log.Printf("[DEBUG] Got a blank screenshot for %s", url)
+		return
 	}
 	s := sha1.New()
 	io.WriteString(s, url)
@@ -127,7 +139,7 @@ func (w Worker) Takescreenshot(url string) {
 func screenshot(urlstr string, res *[]byte) chromedp.Tasks {
 	return chromedp.Tasks{
 		chromedp.Navigate(urlstr),
-		chromedp.Sleep(2 * time.Second),
+		chromedp.Sleep(3 * time.Second),
 		chromedp.CaptureScreenshot(res),
 	}
 }
@@ -135,7 +147,7 @@ func screenshot(urlstr string, res *[]byte) chromedp.Tasks {
 func tagscreenshot(urlstr, sel string, res *[]byte) chromedp.Tasks {
 	return chromedp.Tasks{
 		chromedp.Navigate(urlstr),
-		chromedp.Sleep(2 * time.Second),
+		chromedp.Sleep(4 * time.Second),
 		chromedp.WaitVisible(sel, chromedp.ByID),
 		chromedp.WaitNotVisible(`div.v-middle > div.la-ball-clip-rotate`, chromedp.ByQuery),
 		chromedp.Screenshot(sel, res, chromedp.NodeVisible, chromedp.ByID),
